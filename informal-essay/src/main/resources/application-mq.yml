@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: rocketmq
+server:
+  port: 8089
+
+rocketmq:
+#生产者
+  producer:
+    isOnOff: on #该应用是否启用生产者
+    groupName: ${spring.application.name} #设置groupName
+    namesrvAddr: 120.55.195.153:9876 #设置mq的nameServer地址
+    maxMessageSize: 4096
+    sendMsgTimeout: 30000
+    retryTimesWhenSendFailed: 2
+
+
+# 消费者
+  consumer:
+    isOffOn: on
+    groupName: ${spring.application.name} #设置groupName
+    namesrvAddr: 120.55.195.153:9876 #设置mq的nameServer地址
+    topics: DemoTopic~*
+    consumeThreadMin: 20
+    consumeThreadMax: 64
+    consumeMessageBatchMaxSize: 1

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://dubbo.apache.org/schema/dubbo"
+       xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+      http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context-4.2.xsd
+       http://dubbo.apache.org/schema/dubbo http://dubbo.apache.org/schema/dubbo/dubbo.xsd">
+    <context:component-scan base-package="com.qxy.provider"/>
+    <!-- 指定当前服务名字 -->
+    <dubbo:application name="demo-provider"/>
+    <!-- 指定注册中心地址，参考官网注册中心手册配置： -->
+    <dubbo:registry address="zookeeper://120.55.195.153:2181"/>
+    <!-- 指定通信规则，端口 -->
+    <dubbo:protocol name="dubbo" port="20880"/>
+    <!-- 服务接口真正实现，注入容器中 -->
+    <bean id="userServiceImpl" class="com.qxy.provider.service.impl.UserServiceImpl"/>
+    <!-- 暴露服务接口，ref:指向真正的服务实现对象 -->
+    <dubbo:service interface="com.qxy.common.service.UserService" ref="userServiceImpl"/>
+
+</beans>

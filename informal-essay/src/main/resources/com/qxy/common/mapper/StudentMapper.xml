@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qxy.common.mapper.StudentMapper">
+   <resultMap id="student_result_map" type="com.qxy.common.Do.StudentDo">
+       <id column="student_id" property="studentId" jdbcType="INTEGER"/>
+       <result column="student_name" property="studentName" jdbcType="VARCHAR"/>
+       <result column="student_age" property="studentAge" jdbcType="INTEGER"/>
+       <result column="class_id" property="classId" jdbcType="INTEGER"/>
+       <result column="address" property="address" jdbcType="VARCHAR"/>
+       <result column="mobile" property="mobile" jdbcType="VARCHAR"/>
+       <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+       <result column="operate_time" property="operateTime" jdbcType="TIMESTAMP"/>
+   </resultMap>
+
+
+    <sql id="student_base_sql">
+        student_id, student_name, student_age, class_id, address, mobile, create_time, operate_time
+    </sql>
+
+    <insert id="insertStudent" parameterType="com.qxy.common.Do.StudentDo">
+        insert into student(student_id, student_name, student_age, class_id, address, mobile, create_time, operate_time)
+        values (#{studentId}, #{studentName}, #{studentAge}, #{classId}, #{address}, #{mobile}, #{createTime}, #{operateTime})
+    </insert>
+
+    <update id="updateStudent" parameterType="com.qxy.common.Do.StudentDo">
+        update student
+        <set>
+            <if test="studentName != null">
+                student_name = #{studentName},
+            </if>
+            <if test="studentAge != null">
+                studentAge = #{studentAge},
+            </if>
+            <if test="address != null">
+                address = #{address},
+            </if>
+            <if test="classId != null">
+                classId = #{classId},
+            </if>
+            <if test="mobile != null">
+                mobile = #{mobile}
+            </if>
+        </set>
+        where student_id = #{studentId}
+    </update>
+
+    <select id="selectStudentList" resultMap="student_result_map">
+        select
+        <include refid="student_base_sql"/>
+        from student
+    </select>
+</mapper>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://dubbo.apache.org/schema/dubbo"
+       xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context-4.2.xsd
+       http://dubbo.apache.org/schema/dubbo http://dubbo.apache.org/schema/dubbo/dubbo.xsd">
+    <context:component-scan base-package="com.qxy.consumer"/>
+    <dubbo:application  name="demo-consumer"/>
+
+    <dubbo:registry address="zookeeper://120.55.195.153:2181" timeout="10000"/>
+    <!--服务消费者从注册中心引用暴露的远程服务接口-->
+    <dubbo:reference id="userService" interface="com.qxy.common.service.UserService"/>
+
+</beans>
