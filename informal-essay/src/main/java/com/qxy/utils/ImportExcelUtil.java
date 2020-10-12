@@ -172,15 +172,7 @@ public class ImportExcelUtil {
                     cellValue.put(j, value);
                     j++;
                 }
-                Set set = cellValue.entrySet();
-                Iterator it = set.iterator();
-                while (it.hasNext()) {
-                    Map.Entry entry = (Map.Entry) it.next();
-                    if (!"".equals(entry.getValue())) {
-                        returnList.add(cellValue);
-                        break;
-                    }
-                }
+                returnList.add(cellValue);
             }
             wb.close();
         } catch (FileNotFoundException e) {

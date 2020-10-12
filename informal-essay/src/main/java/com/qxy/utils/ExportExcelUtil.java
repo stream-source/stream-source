@@ -32,11 +32,10 @@ public class ExportExcelUtil {
      * @param sheetName
      * @param excelTitle
      * @param dataCollection
-     * @param excelFields    如果为空：代表不是自定义导出；如过是自定义导出，则是配置的所有fields
      * @param <T>
      * @return
      */
-    public static <T> HSSFWorkbook generateExcel(String sheetName, String[] excelTitle, Collection<T> dataCollection, String[] excelFields) {
+    public static <T> HSSFWorkbook generateExcel(String sheetName, String[] excelTitle, Collection<T> dataCollection) {
         //创建一个Excel文件
         HSSFWorkbook workbook = new HSSFWorkbook();
         //创建一个Sheet表格工作空间
@@ -53,87 +52,8 @@ public class ExportExcelUtil {
             cellHeader.setCellValue(new HSSFRichTextString(excelTitle[i]));
         }
         //匹配表头设置单元格的值
-        setWorkBookValue(sheet, dataCollection, 0, style, excelFields);
+        setWorkBookValue(sheet, dataCollection, 0, style);
 
-        return workbook;
-    }
-
-    /**
-     * 导出excel，表头为二维数组，表示有合并单元格类型的表头
-     *
-     * @param sheetName
-     * @param excelTitle
-     * @param dataCollection
-     * @param <T>
-     * @return
-     */
-    public static <T> HSSFWorkbook exportMergeCell(String sheetName, String[][] excelTitle, Collection<T> dataCollection, String[] excelFields) {
-        //创建一个Excel文件
-        HSSFWorkbook workbook = new HSSFWorkbook();
-        HSSFCellStyle style = workbook.createCellStyle();
-        //创建一个Sheet表格工作空间
-        HSSFSheet sheet = workbook.createSheet(sheetName);
-        //合并数
-        int mergerNum = 0;
-        //给单元格设置值
-        style.setAlignment(HorizontalAlignment.CENTER);
-        style.setVerticalAlignment(VerticalAlignment.CENTER);
-        for (int i = 0; i < excelTitle.length; i++) {
-            HSSFRow row = sheet.createRow(i);
-            row.setHeight((short) 400);
-            for (int j = 0; j < excelTitle[i].length; j++) {
-                HSSFCell cell = row.createCell(j);
-                cell.setCellStyle(style);
-                cell.setCellValue(excelTitle[i][j]);
-            }
-        }
-        // 合并行时要跳过的行列
-        Map<Integer, List<Integer>> map = new HashMap<>(16);
-        //合并列
-        for (int i = 0; i < excelTitle[excelTitle.length - 1].length; i++) {
-            if ("".equals(excelTitle[excelTitle.length - 1][i])) {
-                for (int j = excelTitle.length - 2; j >= 0; j--) {
-                    if (!"".equals(excelTitle[j][i])) {
-                        // 合并单元格
-                        sheet.addMergedRegion(new CellRangeAddress(j, excelTitle.length - 1, i, i));
-                        break;
-                    } else {
-                        if (map.containsKey(j)) {
-                            List<Integer> list = map.get(j);
-                            list.add(i);
-                            map.put(j, list);
-                        } else {
-                            List<Integer> list = new ArrayList<>();
-                            list.add(i);
-                            map.put(j, list);
-                        }
-                    }
-                }
-            }
-        }
-        //合并行
-        for (int i = 0; i < excelTitle.length - 1; i++) {
-            for (int j = 0; j < excelTitle[i].length; j++) {
-                List<Integer> list = map.get(i);
-                if (list == null || (!list.contains(j))) {
-                    if ("".equals(excelTitle[i][j])) {
-                        mergerNum++;
-                        if (mergerNum != 0 && j == (excelTitle[i].length - 1)) {
-                            // 合并单元格
-                            sheet.addMergedRegion(new CellRangeAddress(i, i, j - mergerNum, j));
-                            mergerNum = 0;
-                        }
-                    } else {
-                        if (mergerNum != 0) {
-                            // 合并单元格
-                            sheet.addMergedRegion(new CellRangeAddress(i, i, j - mergerNum - 1, j - 1));
-                            mergerNum = 0;
-                        }
-                    }
-                }
-            }
-        }
-        setWorkBookValue(sheet, dataCollection, 1, style, excelFields);
         return workbook;
     }
 
@@ -151,19 +71,13 @@ public class ExportExcelUtil {
             response.reset();
             //指定下载的文件名
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-            StringBuilder sb = new StringBuilder();
-            sb.append("attachment;filename=");
-            try {
-                sb.append(URLEncoder.encode(fileName, "UTF-8"));
-            } catch (UnsupportedEncodingException e) {
-                sb.append(fileName);
-            }
-            sb.append("_");
-            sb.append(sdf.format(new Date()));
-            sb.append(".xls");
-            response.setHeader("Content-Disposition", sb.toString());
+            String filePrefix = sdf.format(new Date());
+            response.setContentType("application/vnd.ms-excel");
+            response.setCharacterEncoding("utf-8");
+            fileName = URLEncoder.encode(filePrefix + "_" + fileName, "UTF-8").replaceAll("\\+", "%20");
+            response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + ".xlsx");
             response.addHeader("Access-Control-Allow-Origin", "*");
-            response.setContentType("application/vnd.ms-excel;charset=UTF-8");
+            response.setHeader("Access-Control-Expose-Headers", "*");
             BufferedOutputStream bufferedOutput = null;
             try {
                 bufferedOutput = new BufferedOutputStream(response.getOutputStream());
@@ -193,7 +107,7 @@ public class ExportExcelUtil {
      * @param style
      * @param <T>
      */
-    private static <T> void setWorkBookValue(HSSFSheet sheet, Collection<T> dataCollection, int index, HSSFCellStyle style, String[] excelFields) {
+    private static <T> void setWorkBookValue(HSSFSheet sheet, Collection<T> dataCollection, int index, HSSFCellStyle style) {
         T t;
         Object[] fields;
         HSSFRichTextString richTextString;
@@ -210,42 +124,25 @@ public class ExportExcelUtil {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         //遍历集合设置单元格值
         Iterator<T> it = dataCollection.iterator();
-
-        //如果是自定义参数为true，否则false
-        boolean selfDefined = false;
-        if (excelFields != null && excelFields.length > 0) {
-            selfDefined = true;
-        }
         while (it.hasNext()) {
             //创建一行单元格
             index++;
             row = sheet.createRow(index);
             //获取数据
             t = it.next();
-            if (selfDefined) {
-                fields = excelFields;
-            } else {
-                //利用反射，根据JavaBean属性的先后顺序，动态调用getXxx()方法得到属性值
-                fields = t.getClass().getDeclaredFields();
-            }
+            //利用反射，根据JavaBean属性的先后顺序，动态调用getXxx()方法得到属性值
+            fields = t.getClass().getDeclaredFields();
             for (int i = 0; i < fields.length; i++) {
                 cell = row.createCell(i);
                 cell.setCellStyle(style);
-                if (selfDefined) {
-                    fieldName = (String) fields[i];
-                } else {
-                    //利用反射，根据JavaBean属性的先后顺序，动态调用getXxx()方法得到属性值
-                    Field[] newFields = t.getClass().getDeclaredFields();
-                    fieldName = newFields[i].getName();
-                }
+                //利用反射，根据JavaBean属性的先后顺序，动态调用getXxx()方法得到属性值
+                Field[] newFields = t.getClass().getDeclaredFields();
+                fieldName = newFields[i].getName();
                 getMethodName = "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
                 try {
                     tClass = t.getClass();
                     getMethod = tClass.getMethod(getMethodName, new Class[]{});
                     value = getMethod.invoke(t, new Object[]{});
-                    if ("getCheckFlag".equals(getMethodName)) {
-                        value = 1 == (Integer) value ? "正常" : "异常";
-                    }
                     textValue = null;
                     if (!StringUtils.isEmpty(value)) {
                         //value进行类型转换
