@@ -18,7 +18,6 @@ public class LiftOpen extends LiftState {
 
     @Override
     public void runningState() {
-        System.out.println("Error:电梯已开门，无法运行!");
     }
 
     @Override

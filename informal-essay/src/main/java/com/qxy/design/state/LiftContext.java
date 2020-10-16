@@ -58,4 +58,28 @@ public class LiftContext {
         this.liftState.stopState();
     }
 
+
+    /**
+     * 普通实现结构
+     */
+    public void liftState(String state) {
+
+        if (Constant.OPEN.equals(state)) {
+            //open
+            //close
+        } else if (Constant.CLOSE.equals(state)) {
+            //open
+            //close
+            //running
+            //stop
+        } else if (Constant.RUNNING.equals(state)) {
+            //running
+            //stop
+        } else if (Constant.STOP.equals(state)) {
+            //open
+            //close
+            //running
+            //stop
+        }
+    }
 }
