@@ -6,7 +6,7 @@ package com.qxy.design.state;
  */
 public abstract class LiftState {
 
-    LiftContext liftContext;
+    protected LiftContext liftContext;
 
     public void setLiftContext(LiftContext liftContext) {
         this.liftContext = liftContext;
