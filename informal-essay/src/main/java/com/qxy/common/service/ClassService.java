@@ -11,4 +11,6 @@ public interface ClassService {
     void insertClass(ClassDo classDo);
 
     void insertClassByException(ClassDo classDo) throws CustomException;
+
+    ClassDo getClassById(Integer id);
 }

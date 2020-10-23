@@ -3,6 +3,8 @@ package com.qxy.common.Do;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
+
 /**
  * @Author:wx
  * @Date:2020/5/8 16:25
@@ -16,6 +18,26 @@ public class ClassDo {
     private String classNo;
 
     private int studentCount;
+
+    private int rev;
+
+    private Date createTime;
+
+    public int getRev() {
+        return rev;
+    }
+
+    public void setRev(int rev) {
+        this.rev = rev;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
 
     public int getClassId() {
         return classId;

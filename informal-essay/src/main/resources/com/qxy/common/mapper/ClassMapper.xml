@@ -9,13 +9,13 @@
     </resultMap>
 
 
-    <sql id="student_base_sql">
-        class_id, class_name, student_count, class_no
+    <sql id="class_base_sql">
+        class_id, class_name, student_count, class_no, rev, create_time
     </sql>
 
     <insert id="insertClass" parameterType="com.qxy.common.Do.ClassDo">
-        insert into class(class_id, class_name, student_count, class_no)
-        values (#{classId}, #{className}, #{studentCount}, #{classNo})
+        insert into class(class_id, class_name, student_count, class_no,rev,create_time)
+        values (#{classId}, #{className}, #{studentCount}, #{classNo}, #{rev}, #{createTime})
     </insert>
 
     <update id="updateClass" parameterType="com.qxy.common.Do.ClassDo">
@@ -33,4 +33,10 @@
         </set>
         where class_id = #{classId}
     </update>
+
+    <select id="selectClassDoById" parameterType="java.lang.Integer" resultMap="class_result_map">
+        select <include refid="class_base_sql"/>
+        from class
+        where class_id = #{classId, jdbcType=INTEGER}
+    </select>
 </mapper>

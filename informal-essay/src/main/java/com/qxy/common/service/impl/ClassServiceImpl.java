@@ -32,4 +32,9 @@ public class ClassServiceImpl implements ClassService {
         classMapper.insertClass(classDo);
         throw new RuntimeException();
     }
+
+    @Override
+    public ClassDo getClassById(Integer id) {
+        return classMapper.selectClassDoById(id);
+    }
 }
